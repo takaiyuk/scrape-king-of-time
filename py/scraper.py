@@ -6,9 +6,9 @@ WORK_HOUR = 8
 
 
 class Parser:
-    def __init__(self, html: str) -> None:
-        if html is not None:
-            self.soup = BeautifulSoup(html, "html.parser")
+    def __init__(self, main_source: str = None, request_source: str = None) -> None:
+        if main_source is not None:
+            self.soup = BeautifulSoup(main_source, "html.parser")
         self.holiday_count = 0.0
         self.monthly_work_hours = 0.0
         self.your_work_hours = 0.0

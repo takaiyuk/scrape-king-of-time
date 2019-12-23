@@ -10,8 +10,8 @@ from py.notifyer import notify
 
 
 def console(params: argparse.Namespace) -> None:
-    src = Crawler(params).get_source()
-    dct, saving_time = Scraper(html=src).raw_data()
+    main_src, request_src = Crawler(params).get_source()
+    dct, saving_time = Scraper(main_src, request_src).raw_data()
     print(
         """
     残り{work_count_remain}営業日: ({work_count}/{monthly_work_count} 日)
@@ -33,8 +33,8 @@ def console(params: argparse.Namespace) -> None:
 
 def notify_to_slack(params: argparse.Namespace) -> None:
     try:
-        src = Crawler(params).get_source()
-        messages, saving_time = Scraper(html=src).scrape()
+        main_src, request_src = Crawler(params).get_source()
+        messages, saving_time = Scraper(main_src, request_src).scrape()
         dt_now = datetime.now()
         title = f"{dt_now.year}/{dt_now.month}/{dt_now.day}"
         notify(title, "\n".join(messages), saving_time)
