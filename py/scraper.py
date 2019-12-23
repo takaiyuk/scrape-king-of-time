@@ -9,6 +9,7 @@ class Parser:
     def __init__(self, main_source: str = None, request_source: str = None) -> None:
         if main_source is not None:
             self.soup = BeautifulSoup(main_source, "html.parser")
+            self.aux_soup = BeautifulSoup(request_source, "html.parser")
         self.holiday_count = 0.0
         self.monthly_work_hours = 0.0
         self.your_work_hours = 0.0
@@ -126,6 +127,23 @@ class Parser:
             print("打刻しましたか？退勤後なら問題ないですが")
         finally:
             return start_time_string, teiji_time_string
+
+    def get_requested(self) -> float:
+        requested_list = self.aux_soup.find_all(
+            "td",
+            attrs={"data-ht-sort-index": "EMPLOYEE_REQUEST_LIST_REQUESTED_CONTENT"},
+        )
+        requested_list = [
+            r.text.split(" ") for r in requested_list
+        ]  # ex. [['2019/12/12(木)', '18:30', '(退勤)'], ['2019/12/12(木)', '09:30', '(出勤)'], ...]
+        """
+        TODO:
+        - 申請履歴から取得した以上の申請リクエストをメインソースに反映させる
+        - 反映させたときに変更になる要素を再定義する
+            - 前日までの勤務時間
+                - 勤務時間を上部の集計済みボックスではなく、下部の日々の出退勤時間から割り出す必要がある
+            - 前日までの勤務日数
+        """
 
     def parse(self) -> None:
         # 有給等の取得日数を取得
