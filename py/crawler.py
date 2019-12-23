@@ -4,6 +4,7 @@ import random
 from selenium import webdriver
 import time
 import os
+from typing import Tuple
 
 from config import YOUR_ID, YOUR_PW
 from .const import (
@@ -85,7 +86,7 @@ class Crawler:
         self.driver = Driver(params).driver
         self.browser = Browser(self.driver)
 
-    def get_source(self) -> str:
+    def _login(self) -> None:
         # トップページ
         self.browser.get(TOP_URL)
 
@@ -101,10 +102,29 @@ class Crawler:
         if url == TOP_URL:
             raise Exception("login failed")
 
-        # ソースを取得
-        page_source = self.browser.source()
+    def _go_to_request_list(self) -> None:
+        # メニューをクリック
+        self.browser.click('//*[@id="header_main_menu"]/div[1]/div[1]/p/a')
+
+        # 申請履歴（過去60日）をクリック
+        self.browser.click(
+            '//*[@id="header_main_menu"]/div[2]/table/tbody/tr/td[3]/a[1]'
+        )
+
+    def get_source(self) -> Tuple[str, str]:
+        # ログイン
+        self._login()
+
+        # メインページのソースを取得
+        main_page_source = self.browser.source()
+
+        # 申請履歴ページへ移動
+        self._go_to_request_list()
+
+        # 申請履歴ページのソースを取得
+        request_page_source = self.browser.source()
 
         # プロセス消す
         self.driver.quit()
 
-        return page_source
+        return (main_page_source, request_page_source)
